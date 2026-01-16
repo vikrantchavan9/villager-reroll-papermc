@@ -1,0 +1,9 @@
+name: VillagerReroll
+version: 1.0
+main: me.vikrant.villagerreroll.VillagerRerollPlugin
+api-version: '1.20'
+
+permissions:
+  villager.reroll:
+    description: Allows rerolling villager trades
+    default: op
