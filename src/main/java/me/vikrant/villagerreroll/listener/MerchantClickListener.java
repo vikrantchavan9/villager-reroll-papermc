@@ -9,17 +9,24 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.inventory.MerchantRecipe;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class MerchantClickListener implements Listener {
+
+    private final JavaPlugin plugin;
+
+    public MerchantClickListener(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onMerchantClick(InventoryClickEvent event) {
 
-        // Must be merchant inventory
+        // Must be a merchant (villager) inventory
         if (!(event.getInventory() instanceof MerchantInventory merchant))
             return;
 
-        // RESULT SLOT is always raw slot 2
+        // Result slot is always raw slot 2
         if (event.getRawSlot() != 2)
             return;
 
@@ -30,19 +37,17 @@ public class MerchantClickListener implements Listener {
         if (recipe == null)
             return;
 
+        // Only intercept clicks on our custom reroll trade
         if (!RerollTrade.isRerollItem(recipe.getResult()))
             return;
 
+        // Cancel the click so no item is consumed/given
         event.setCancelled(true);
 
         if (!(merchant.getMerchant() instanceof Villager villager))
             return;
 
-        TradeManager.rerollTrades(villager);
-
-        player.closeInventory();
-        player.openMerchant(villager, true);
-
-        player.sendMessage("§aVillager trades rerolled!");
+        // Delegate reroll (handles XP reset, level reset, temp villager, UI reopen)
+        TradeManager.rerollTrades(plugin, player, villager);
     }
 }
